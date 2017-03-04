@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -35,6 +36,8 @@ public class Demo extends ApplicationAdapter {
 
 	Body sunBody;
 	Body planetBody;
+
+	Box2DDebugRenderer debugRenderer;
 
 	protected void loadAssets() {
 		am.load(SUN_FILE, Texture.class);
@@ -72,8 +75,10 @@ public class Demo extends ApplicationAdapter {
 
 		CircleShape sunCircle = new CircleShape();
 		CircleShape planetCircle = new CircleShape();
-		sunCircle.setRadius(150f);
-		planetCircle.setRadius(50f);
+		sunCircle.setRadius(100);
+		planetCircle.setRadius(25);
+		sunCircle.setPosition(new Vector2(100, 100));
+		planetCircle.setPosition(new Vector2(25, 25));
 
 		FixtureDef sunFixtureDef = new FixtureDef();
 		FixtureDef planetFixtureDef = new FixtureDef();
@@ -105,7 +110,7 @@ public class Demo extends ApplicationAdapter {
 		planetBody.applyForceToCenter(
 						new Vector2(new Float(fx), new Float(fy)),
 						true);
-		
+
 //		sunBody.applyForceToCenter(
 //						new Vector2(new Float(fx * -1), new Float(fy * -1)),
 //						true);
@@ -117,6 +122,7 @@ public class Demo extends ApplicationAdapter {
 		loadAssets();
 		createSprites();
 		batch = new SpriteBatch();
+		debugRenderer = new Box2DDebugRenderer();
 	}
 
 	@Override
@@ -126,6 +132,8 @@ public class Demo extends ApplicationAdapter {
 
 		updateOrbits();
 		world.step(Gdx.graphics.getDeltaTime(), 6, 2);
+
+		debugRenderer.render(world, batch.getProjectionMatrix());
 
 		Array<Body> bodies = new Array<Body>();
 		world.getBodies(bodies);
