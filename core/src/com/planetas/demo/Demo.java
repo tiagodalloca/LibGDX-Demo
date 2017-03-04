@@ -18,7 +18,7 @@ import com.badlogic.gdx.utils.Array;
 
 public class Demo extends ApplicationAdapter {
 
-	public static final boolean FULL_SCREEN = false;
+	public static final boolean FULL_SCREEN = true;
 	public static final int HEIGHT = 800;
 	public static final int WIDTH = 800;
 	public static final String TITLE = "Demo";
@@ -53,8 +53,8 @@ public class Demo extends ApplicationAdapter {
 		BodyDef sunDef = new BodyDef();
 		BodyDef planetDef = new BodyDef();
 
-		float x = Gdx.graphics.getWidth() / 2.0f;
-		float y = Gdx.graphics.getHeight()/ 2.0f;
+		float x = (Gdx.graphics.getWidth() - sun.getWidth()) / 2.0f;
+		float y = (Gdx.graphics.getHeight() - sun.getHeight()) / 2.0f;
 
 		sunDef.position.set(new Vector2(x, y));
 		planetDef.position.set(new Vector2(x - 200, y));
