@@ -25,6 +25,7 @@ public class Demo extends ApplicationAdapter {
 	public static final int HEIGHT = 800;
 	public static final int WIDTH = 800;
 	public static final String TITLE = "Demo";
+	public static final double G = 6.67408;
 
 	public static final String SUN_FILE = "sun.png";
 	public static final String PLANET_FILE = "planet.png";
@@ -67,7 +68,7 @@ public class Demo extends ApplicationAdapter {
 		float y = (Gdx.graphics.getHeight() - sun.getHeight()) / 2.0f;
 
 		sunDef.position.set(new Vector2(x, y));
-		planetDef.position.set(new Vector2(x - 200, y));
+		planetDef.position.set(new Vector2(x + 400, y + 200));
 
 		world = new World(new Vector2(0, 0), false);
 		sunBody = world.createBody(sunDef);
@@ -85,35 +86,46 @@ public class Demo extends ApplicationAdapter {
 		sunFixtureDef.shape = sunCircle;
 		planetFixtureDef.shape = planetCircle;
 		sunFixtureDef.density = 1000;
-		planetFixtureDef.density = 10;
+		planetFixtureDef.density = 0.1f;
 
 		sunBody.createFixture(sunFixtureDef);
 		planetBody.createFixture(planetFixtureDef);
 		sunBody.setUserData(sun);
 		planetBody.setUserData(planet);
+		
+//		double pv = Math.sqrt(((sunBody.getMass() + planetBody.getMass())*G)/planetBody.getPosition().dst(sunBody.getPosition()));
+//		
+//		Vector2 dstVector2 = planetBody.getPosition();
+//		dstVector2.sub(sunBody.getPosition());
+//		
+//		double pvx = 2000;
+//		double pvy = 1000;
+//		
+//		planetBody.applyLinearImpulse(new Float(pvx), new Float(pvy), 
+//						planetBody.getPosition().x,
+//						planetBody.getPosition().y, true);
 
 		sunCircle.dispose();
 		planetCircle.dispose();
 	}
 
 	protected void updateOrbits() {
-		double dst2 = planetBody.getPosition().dst2(sunBody.getPosition());
-		float dstX = planetBody.getPosition().x - sunBody.getPosition().x;
-		float dstY = planetBody.getPosition().y - sunBody.getPosition().y;
+		Vector2 dstVector2 = planetBody.getPosition();
+		dstVector2.sub(sunBody.getPosition());
+		
+		double dst2 = Math.pow(dstVector2.x, 2) + Math.pow(dstVector2.y, 2);
 
-		double bearingAngle = Math.atan2(dstX, dstY) * -1;
-
-		double f = (6.67408f * planetBody.getMass() * sunBody.getMass()) / dst2;
-		double fx = Math.sin(bearingAngle) * f;
-		double fy = Math.cos(bearingAngle) * f;
+		double f = (G * planetBody.getMass() * sunBody.getMass()) / dst2;
+		double fx = dstVector2.x * f *-1;
+		double fy = dstVector2.y * f *-1;
 
 		planetBody.applyForceToCenter(
 						new Vector2(new Float(fx), new Float(fy)),
 						true);
 
-//		sunBody.applyForceToCenter(
-//						new Vector2(new Float(fx * -1), new Float(fy * -1)),
-//						true);
+		sunBody.applyForceToCenter(
+						new Vector2(new Float(fx * -1), new Float(fy * -1)),
+						true);
 	}
 
 	@Override
@@ -131,7 +143,7 @@ public class Demo extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		updateOrbits();
-		world.step(Gdx.graphics.getDeltaTime(), 6, 2);
+		world.step(Gdx.graphics.getDeltaTime(), 2, 2);
 
 		debugRenderer.render(world, batch.getProjectionMatrix());
 
@@ -142,7 +154,6 @@ public class Demo extends ApplicationAdapter {
 			Sprite sprite = (Sprite) b.getUserData();
 			if (sprite != null) {
 				sprite.setPosition(b.getPosition().x, b.getPosition().y);
-				sprite.setRotation(MathUtils.radiansToDegrees * b.getAngle());
 			}
 
 			batch.begin();
